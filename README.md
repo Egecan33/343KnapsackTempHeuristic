@@ -1,2 +1,3 @@
 # 343KnapsackTempHeuristic
- An heuristic to solve knapsack
+ First of all I have changed some minor things in the code sent. I don't really like the parameters being passed by reference, so I changed that. I also changed the way the random number generator is initialized, so that it is not initialized with the same seed every time. I also added a function to print the solution, so that I can see the solution for.
+ items = Item.readCSV("Items.csv");
