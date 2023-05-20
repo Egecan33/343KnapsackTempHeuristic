@@ -2,8 +2,10 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class SimulatedAnnealing {
@@ -25,16 +27,21 @@ public class SimulatedAnnealing {
         this.random = new Random();
         this.writer = new BufferedWriter(new FileWriter(outputFile));
 
+        // Generate a list of indices sorted by value to weight ratio
+        List<Integer> sortedIndices = IntStream.range(0, items.size()).boxed()
+                .sorted((i, j) -> Double.compare(items.get(j).getValue() / (double) items.get(j).getWeight(),
+                        items.get(i).getValue() / (double) items.get(i).getWeight()))
+                .collect(Collectors.toList());
+
         // Generate an initial feasible solution by greedy heuristic
-        List<Integer> initialSolution = new ArrayList<>();
+        List<Integer> initialSolution = new ArrayList<>(Collections.nCopies(items.size(), 0));
         int totalWeight = 0;
-        for (Item item : items) {
-            if (item.getWeight() + totalWeight <= knapsackCapacity) {
-                initialSolution.add(1); // item is included
-                totalWeight += item.getWeight();
-            } else {
-                initialSolution.add(0); // item is excluded
+        for (int i : sortedIndices) {
+            if (items.get(i).getWeight() + totalWeight <= knapsackCapacity) {
+                initialSolution.set(i, 1); // item is included
+                totalWeight += items.get(i).getWeight();
             }
+            // Otherwise, item is excluded and stays 0 in the solution
         }
         this.currentSolution = new ObjectiveSolution(initialSolution, calculateValue(initialSolution));
         this.bestSolution = new ObjectiveSolution(new ArrayList<>(initialSolution),
@@ -76,6 +83,8 @@ public class SimulatedAnnealing {
 
     private ObjectiveSolution generateNeighbor() {
         List<Integer> currentSolutionList = currentSolution.getSolution();
+        List<Integer> currentBestSolutionList = bestSolution.getSolution();
+
         int[] includedIndices = IntStream.range(0, currentSolutionList.size())
                 .filter(i -> currentSolutionList.get(i) == 1).toArray();
         int[] excludedIndices = IntStream.range(0, currentSolutionList.size())
@@ -89,9 +98,7 @@ public class SimulatedAnnealing {
         int operation = random.nextInt(3);
         if (operation == 0 && excludedIndices.length > 0) { //// Add an item
             for (int i = 0; i < excludedIndices.length; i++) {
-                int indexToInclude = excludedIndices[random.nextInt(excludedIndices.length)]; // for reducing complexity
-                                                                                              // could solve with if
-                                                                                              // statement
+                int indexToInclude = excludedIndices[random.nextInt(excludedIndices.length)];
                 neighborSolution.set(indexToInclude, 1); // Include item
                 if (calculateWeight(neighborSolution) <= knapsackCapacity) {
                     return new ObjectiveSolution(neighborSolution, calculateValue(neighborSolution));
@@ -101,6 +108,12 @@ public class SimulatedAnnealing {
             }
             return null; // If we got here, no item could be added without exceeding the weight limit
         } else if (operation == 1 && includedIndices.length > 0) { //// Remove an item
+            // Don't allow removing if current solution is very different from the current
+            // best solution
+            if (calculateValue(currentSolutionList) < calculateValue(currentBestSolutionList) * 0.80) {
+                return null;
+            }
+
             int indexToRemove = includedIndices[random.nextInt(includedIndices.length)];
             neighborSolution.set(indexToRemove, 0); // Exclude item
             return new ObjectiveSolution(neighborSolution, calculateValue(neighborSolution));
