@@ -10,7 +10,7 @@ public class SimulatedAnnealing {
 
     private static final double INITIAL_TEMPERATURE = 10000;
     private static final double COOLING_RATE = 0.03;
-    private static final double STOP_TEMPERATURE = 0.01;
+    private static final double STOP_TEMPERATURE = 0.01; // given by me
 
     private ObjectiveSolution currentSolution;
     private ObjectiveSolution bestSolution;
@@ -47,7 +47,8 @@ public class SimulatedAnnealing {
             ObjectiveSolution neighbor = generateNeighbor();
 
             if (neighbor != null) {
-                double delta = neighbor.getObjectiveValue() - currentSolution.getObjectiveValue();
+                double delta = neighbor.getObjectiveValue() - currentSolution.getObjectiveValue(); // for accepting the
+                                                                                                   // better solutions
                 if (delta > 0
                         || random.nextDouble() < calculateAcceptanceProbability(currentSolution.getObjectiveValue(),
                                 neighbor.getObjectiveValue(), t)) {
@@ -57,12 +58,15 @@ public class SimulatedAnnealing {
                                 currentSolution.getObjectiveValue());
                     }
                 }
+                t *= 1 - COOLING_RATE;
+                writer.write(currentSolution.getObjectiveValue() + "\n");
             }
-
-            t *= 1 - COOLING_RATE;
+            // if we write t *= 1 - COOLING_RATE; here, it will run some non iterations
+            // because of the structure of the while loop when we get null we don't update
+            // "t" because actually it doesn't make an iteration so we write it inside the
+            // neighbor != null if.
 
             // Write the current objective value to the file
-            writer.write(currentSolution.getObjectiveValue() + "\n");
         }
 
         writer.close();
@@ -83,9 +87,11 @@ public class SimulatedAnnealing {
 
         // Randomly decide whether to add an item, remove an item, or swap an item
         int operation = random.nextInt(3);
-        if (operation == 0 && excludedIndices.length > 0) { // Add an item
+        if (operation == 0 && excludedIndices.length > 0) { //// Add an item
             for (int i = 0; i < excludedIndices.length; i++) {
-                int indexToInclude = excludedIndices[random.nextInt(excludedIndices.length)];
+                int indexToInclude = excludedIndices[random.nextInt(excludedIndices.length)]; // for reducing complexity
+                                                                                              // could solve with if
+                                                                                              // statement
                 neighborSolution.set(indexToInclude, 1); // Include item
                 if (calculateWeight(neighborSolution) <= knapsackCapacity) {
                     return new ObjectiveSolution(neighborSolution, calculateValue(neighborSolution));
@@ -94,11 +100,11 @@ public class SimulatedAnnealing {
                 }
             }
             return null; // If we got here, no item could be added without exceeding the weight limit
-        } else if (operation == 1 && includedIndices.length > 0) { // Remove an item
+        } else if (operation == 1 && includedIndices.length > 0) { //// Remove an item
             int indexToRemove = includedIndices[random.nextInt(includedIndices.length)];
             neighborSolution.set(indexToRemove, 0); // Exclude item
             return new ObjectiveSolution(neighborSolution, calculateValue(neighborSolution));
-        } else if (operation == 2 && includedIndices.length > 0 && excludedIndices.length > 0) { // Swap an item
+        } else if (operation == 2 && includedIndices.length > 0 && excludedIndices.length > 0) { //// Swap an item
             for (int i = 0; i < excludedIndices.length; i++) {
                 int indexToRemove = includedIndices[random.nextInt(includedIndices.length)];
                 int indexToInclude = excludedIndices[random.nextInt(excludedIndices.length)];
