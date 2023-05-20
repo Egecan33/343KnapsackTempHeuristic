@@ -32,6 +32,16 @@ public class Main {
 
         System.out.println("Best Solution: " + bestSolution.getSolution());
         System.out.println("Best Value: " + bestSolution.getObjectiveValue());
+
+        // Print selected items with IDs, values, and weights
+        System.out.println("Selected Items:");
+        for (int i = 0; i < bestSolution.getSolution().size(); i++) {
+            if (bestSolution.getSolution().get(i) == 1) {
+                Item item = items.get(i);
+                System.out.println(
+                        "ID: " + item.getName() + ", Value: " + item.getValue() + ", Weight: " + item.getWeight());
+            }
+        }
     }
 
     private static int calculateValue(List<Integer> solution) {
