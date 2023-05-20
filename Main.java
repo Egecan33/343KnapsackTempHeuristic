@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Main {
 
-    private static int knapsackCapacity = 7;
+    private static int knapsackCapacity = 300;
     private static List<Item> items;
 
     public static void main(String[] args) {
