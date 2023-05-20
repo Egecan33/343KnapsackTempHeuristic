@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 public class SimulatedAnnealing {
 
     private static final double INITIAL_TEMPERATURE = 10000;
-    private static final double COOLING_RATE = 0.03;
+    private static final double COOLING_RATE = 0.002;
     private static final double STOP_TEMPERATURE = 0.01; // given by me
 
     private ObjectiveSolution currentSolution;
@@ -46,6 +46,7 @@ public class SimulatedAnnealing {
         this.currentSolution = new ObjectiveSolution(initialSolution, calculateValue(initialSolution));
         this.bestSolution = new ObjectiveSolution(new ArrayList<>(initialSolution),
                 currentSolution.getObjectiveValue());
+        writer.write(currentSolution.getObjectiveValue() + "\n");
     }
 
     public ObjectiveSolution run() throws IOException {
@@ -68,6 +69,7 @@ public class SimulatedAnnealing {
                 t *= 1 - COOLING_RATE;
                 writer.write(currentSolution.getObjectiveValue() + "\n");
             }
+
             // if we write t *= 1 - COOLING_RATE; here, it will run some non iterations
             // because of the structure of the while loop when we get null we don't update
             // "t" because actually it doesn't make an iteration so we write it inside the
@@ -110,7 +112,7 @@ public class SimulatedAnnealing {
         } else if (operation == 1 && includedIndices.length > 0) { //// Remove an item
             // Don't allow removing if current solution is very different from the current
             // best solution
-            if (calculateValue(currentSolutionList) < calculateValue(currentBestSolutionList) * 0.80) {
+            if (calculateValue(currentSolutionList) < calculateValue(currentBestSolutionList) * 0.965) {
                 return null;
             }
 
