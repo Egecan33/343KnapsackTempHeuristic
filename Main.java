@@ -8,6 +8,7 @@ public class Main {
     private static List<Item> items;
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
         try {
             items = Item.readCSV("Items.csv");
         } catch (IOException e) {
@@ -42,6 +43,8 @@ public class Main {
                         "ID: " + item.getName() + ", Value: " + item.getValue() + ", Weight: " + item.getWeight());
             }
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime - startTime) + "ms");
     }
 
     private static int calculateValue(List<Integer> solution) {
