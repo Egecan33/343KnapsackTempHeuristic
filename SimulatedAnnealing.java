@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 public class SimulatedAnnealing {
 
     private static final double INITIAL_TEMPERATURE = 10000;
-    private static final double COOLING_RATE = 0.002;
+    private static final double COOLING_RATE = 0.03;
     private static final double STOP_TEMPERATURE = 0.01; // given by me
 
     private ObjectiveSolution currentSolution;
@@ -112,7 +112,7 @@ public class SimulatedAnnealing {
         } else if (operation == 1 && includedIndices.length > 0) { //// Remove an item
             // Don't allow removing if current solution is very different from the current
             // best solution
-            if (calculateValue(currentSolutionList) < calculateValue(currentBestSolutionList) * 0.965) {
+            if (calculateValue(currentSolutionList) < calculateValue(currentBestSolutionList) * 0.9) {
                 return null;
             }
 
